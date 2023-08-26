@@ -1,6 +1,5 @@
 #!/usr/bin/python3
-""" defining place class
-"""
+"""definition for place class"""
 from sqlalchemy.ext.declarative import declarative_base
 from models.base_model import BaseModel, Base
 from sqlalchemy import Column, Table, String, Integer, Float, ForeignKey
@@ -20,7 +19,7 @@ place_amenity = Table("place_amenity", Base.metadata,
 
 
 class Place(BaseModel, Base):
-    """ class for Place
+    """This is the class for Place
     Attributes:
         city_id: city id
         user_id: user id
@@ -35,7 +34,6 @@ class Place(BaseModel, Base):
         amenity_ids: list of Amenity ids
     """
     __tablename__ = "places"
-    __table_args__ = ({'mysql_default_charset': 'latin1'})
     city_id = Column(String(60), ForeignKey("cities.id"), nullable=False)
     user_id = Column(String(60), ForeignKey("users.id"), nullable=False)
     name = Column(String(128), nullable=False)
@@ -58,7 +56,7 @@ class Place(BaseModel, Base):
     else:
         @property
         def reviews(self):
-            """ Returns (list of reviews.id) """
+            """ Returns list of reviews.id """
             var = models.storage.all()
             lista = []
             result = []
@@ -74,7 +72,7 @@ class Place(BaseModel, Base):
 
         @property
         def amenities(self):
-            """ (Returns list of amenity ids) """
+            """ Returns list of amenity ids """
             return self.amenity_ids
 
         @amenities.setter
