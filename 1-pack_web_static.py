@@ -5,7 +5,9 @@ from datetime import datetime
 from fabric.api import local
 
 def do_pack():
-#Creates archive from web_static directory
+    """
+    Creates archive from web_static directory
+    """
     local("mkdir -p versions")
     file = 'versions/web_static_{}.tgz'\
         .format(datetime.strftime(datetime.now(), "%Y%m%d%I%M%S"))
