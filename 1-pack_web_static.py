@@ -1,8 +1,8 @@
 #!/usr/bin/python3
-"""generates a .tgz archive from the contents of the web_static folder"""
+# generates a .tgz archive from the contents of the web_static folder
+# this uses the function do_pack
 from datetime import datetime
 from fabric.api import local
-
 
 def do_pack():
     """Creates archive from web_static directory"""
