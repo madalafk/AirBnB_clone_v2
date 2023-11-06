@@ -1,36 +1,62 @@
 #!/usr/bin/python3
 """
-distributes an archive to your web servers
+A PY script to distributes a .tgz archive using Fabric.
 """
-
-from fabric.api import run, put, env
 import os
+from datetime import datetime
+from fabric.api import local, env, put, run
 
-env.hosts = ['52.201.107.155', '54.162.81.227']
+"""
+my Remote webservers details
+"""
+env.hosts = ["100.25.30.112", "54.237.113.234"]
+env.user = "ubuntu"
+env.key_filename = "~/.ssh/school"
+
+def do_pack():
+    #Generates a .tgz archive from the contents of web_static folder.
+    if not os.path.isdir("versions"):
+        os.mkdir("versions")
+    cur_time = datetime.now()
+    output = "versions/web_static_{}{}{}{}{}{}.tgz".format(
+        cur_time.year,
+        cur_time.month,
+        cur_time.day,
+        cur_time.hour,
+        cur_time.minute,
+        cur_time.second
+    )
+    try:
+        print("Packing web_static to {}".format(output))
+        local("tar -cvzf {} web_static".format(output))
+        archize_size = os.stat(output).st_size
+        print("web_static packed: {} -> {} Bytes".format(output, archize_size))
+        return output
+    except Exception:
+        return None
 
 
 def do_deploy(archive_path):
     """
-    distributes an archive to your web servers
+    Distributing archived file to host servers.
+        - Argument:
+            - archive_path: The path to the archived file.
     """
-    # verificamos si el path existe
-    if os.path.exists(archive_path) is False:
-        return(False)
+    if not os.path.exists(archive_path):
+        return False
     try:
-        put(archive_path, '/tmp/')
-        _filename = archive_path.split("/")[-1]
-        filename = _filename.split(".")[0]
-        run('mkdir -p /data/web_static/releases/{}'.format(filename))
-        run('tar -xzf /tmp/{} -C /data/web_static/releases/{}'.format
-            (_filename, filename))
-        run('rm /tmp/{}'.format(_filename))
-        run('mv /data/web_static/releases/{}/web_static/* \
-            /data/web_static/releases/{}/'.format(filename, filename))
-        run('rm -rf /data/web_static/releases/{}/web_static'
-            .format(filename))
-        run('rm -rf /data/web_static/current')
-        run('ln -s /data/web_static/releases/{} /data/web_static/current'
-            .format(filename))
-        return(True)
-    except:
-        return(False)
+        file_name = os.path.basename(archive_path)
+        folder_name = file_name.replace(".tgz", "")
+        folder_path = "/data/web_static/releases/{}/".format(folder_name)
+        put(archive_path, "/tmp/")
+        run("mkdir -p {}".format(folder_path))
+        run("tar -xzf /tmp/{} -C {}".format(file_name, folder_path))
+        run("rm /tmp/{}".format(file_name))
+        run("mv {}/web_static/* {}".format(folder_path, folder_path))
+        run("rm -rf {}/web_static".format(folder_path))
+        run("rm -rf /data/web_static/current")
+        run("ln -s {} /data/web_static/current".format(folder_path))
+        print("New version deployed!")
+        return True
+    except Exception:
+        return False
